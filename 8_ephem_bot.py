@@ -13,6 +13,7 @@
 
 """
 import logging
+import ephem
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -29,6 +30,23 @@ PROXY = {
     }
 }
 
+PLANETS = {
+	"Mercury": ephem.Mercury("2022"),
+	"Venus": ephem.Venus("2022"),
+	"Mars": ephem.Mars("2022"),
+	"Jupiter": ephem.Jupiter("2022"),
+	"Saturn": ephem.Saturn("2022"),
+	"Uranus": ephem.Uranus("2022"),
+	"Neptune": ephem.Neptune("2022"),
+}
+
+def planet_constellation(update, context):
+
+	planet = update.message.text.split()[1].title()
+	print(planet)
+	constellation = ephem.constellation(PLANETS[planet])[1]
+	print(constellation)
+	update.message.reply_text(constellation)
 
 def greet_user(update, context):
     text = 'Вызван /start'
@@ -39,14 +57,15 @@ def greet_user(update, context):
 def talk_to_me(update, context):
     user_text = update.message.text
     print(user_text)
-    update.message.reply_text(text)
+    update.message.reply_text(user_text)
 
 
 def main():
-    mybot = Updater("КЛЮЧ, КОТОРЫЙ НАМ ВЫДАЛ BotFather", request_kwargs=PROXY, use_context=True)
+    mybot = Updater("API KEY", use_context=True)
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
+    dp.add_handler(CommandHandler("planet", planet_constellation))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     mybot.start_polling()
